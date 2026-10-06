@@ -478,6 +478,34 @@ input:checked + .chip .swatch { border-color: var(--select-fg); }
   font: 0.8125rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+/* === Nav between the two oracles === */
+.oracle-nav { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+.oracle-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.oracle-nav a:hover { border-color: var(--heading); }
+.oracle-nav a[aria-current="page"] { border-color: var(--select-bg); background: var(--select-bg); color: var(--select-fg); }
+.oracle-nav a:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.btn--ghost {
+  display: inline-flex;
+  align-items: center;
+  border: 1.5px solid var(--select-bg);
+  background: transparent;
+  color: var(--heading);
+  text-decoration: none;
+}
+.btn--ghost:hover { border-color: var(--accent); }
+
 /* === Footer === */
 .site-foot {
   display: flex;

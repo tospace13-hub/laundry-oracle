@@ -108,8 +108,12 @@
   app.innerHTML = `
     <header class="masthead">
       <div>
-        <p class="brandline">Care &amp; Repair</p>
-        <h1>The Laundry <span>Oracle</span></h1>
+        <nav class="oracle-nav" aria-label="Oracles">
+          <a href="./" aria-current="page">Stain Oracle</a>
+          <a href="washing/">Washing Oracle</a>
+        </nav>
+        <p class="brandline">Care &amp; Repair · Laundry Oracle</p>
+        <h1>The Stain <span>Oracle</span></h1>
         <p class="lede">Tell the oracle what your garment is made of, what colour it is and what you spilled on it. It tells you how to get the stain out without ruining the fabric.</p>
       </div>
       ${porthole('mast')}
@@ -146,6 +150,7 @@
         <div class="reading-body" id="reading-body"></div>
         <div class="actions">
           <button class="btn" type="button" id="copy">Copy instructions</button>
+          <a class="btn btn--ghost" id="to-washing" href="washing/">Next: how to wash it</a>
           <span class="copy-status" id="copy-status" role="status"></span>
           <textarea class="copy-fallback" id="copy-fallback" readonly hidden aria-label="Instructions to copy"></textarea>
         </div>
@@ -249,6 +254,16 @@
   form.addEventListener('submit', (e) => e.preventDefault());
 
   // ---- Copy ----
+
+  // Washing Oracle hand-off: open it with this fabric and colour already chosen.
+  $('to-washing').addEventListener('click', () => {
+    if (!current) return;
+    try {
+      const key = 'washing-oracle:v1';
+      const prev = JSON.parse(localStorage.getItem(key)) || {};
+      localStorage.setItem(key, JSON.stringify({ ...prev, textile: current.textile.id, colour: current.colour.id }));
+    } catch (e) { /* storage unavailable: the link still works */ }
+  });
 
   $('copy').addEventListener('click', () => {
     if (!current) return;
