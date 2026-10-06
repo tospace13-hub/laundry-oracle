@@ -111,6 +111,7 @@
         <nav class="oracle-nav" aria-label="Oracles">
           <a href="./" aria-current="page">Stain Oracle</a>
           <a href="washing/">Washing Oracle</a>
+          <a href="when/">When to Wash</a>
         </nav>
         <p class="brandline">Care &amp; Repair · Laundry Oracle</p>
         <h1>The Stain <span>Oracle</span></h1>
