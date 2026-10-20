@@ -1,15 +1,65 @@
 # Laundry Oracle
 
-Two tools from the [NewTexEco Care & Repair](https://newtexeco.nl/en/projecten/care-repair/) project:
+Four tools from the [NewTexEco Care & Repair](https://newtexeco.nl/en/projecten/care-repair/) project:
 
-- **Stain Oracle** (https://tospace13-hub.github.io/laundry-oracle/): pick a **textile**, a **colour** and a **stain**, and it tells you how to get the stain out without ruining the fabric.
-- **Washing Oracle** (https://tospace13-hub.github.io/laundry-oracle/washing/): say what matters to you and what is in the drum, and it shows which **programme, temperature, spin, extras and detergent** to use on a Miele washing machine, button by button.
+- **Laundry Day** (https://tospace13-hub.github.io/laundry-oracle/, the front page) brings the other three together. Put what's in your basket in the circle, and it:
+  - sorts the basket into loads
+  - times the stain pre-treatment
+  - gives each load its Miele settings
+  - plans when to run each load
+- **Stain Oracle** (https://tospace13-hub.github.io/laundry-oracle/stain/) takes a **textile**, a **colour** and a **stain**, and tells you how to get the stain out without ruining the fabric.
+- **Washing Oracle** (https://tospace13-hub.github.io/laundry-oracle/washing/) asks what matters to you and what is in the drum. It shows which **programme, temperature, spin, extras and detergent** to use on a Miele washing machine, button by button.
+- **When to Wash** (https://tospace13-hub.github.io/laundry-oracle/when/) reads the weather for your location and plans your loads around your week. It looks for sun on your solar panels, dry hours to hang laundry outside, off-peak hours and quiet hours, and finishes when someone is home.
 
-- **When to Wash** (https://tospace13-hub.github.io/laundry-oracle/when/): reads the weather for your location and plans your loads around your week. It looks for sun on your solar panels, dry hours to hang laundry outside, off-peak hours and quiet hours, and finishes when someone is home.
+All four pages link to each other and share what you've already told them:
+- fabric and colour
+- the Miele panel type
+- location
+- home rhythm
 
-The pages link to each other. Fabric and colour carry over between the Stain and Washing Oracles, and When to Wash plans with the programme you chose in the Washing Oracle.
+The Stain Oracle used to be the front page; it now lives at `/stain/`.
+
+## Laundry Day
+
+### Inputs
+
+- **The basket:** a round basket ringed by 13 garment types. Tap one to add a piece in the chosen colour. Tap a piece to change:
+  - how many
+  - colour
+  - stain (the Stain Oracle's list)
+  - its **care label**, using the five ISO 3758 symbols: wash tub, triangle, square, iron and circle. Tap each one until it matches the label in the seam.
+  - It opens with an example basket.
+- **Home and machine:** your location, week, energy and drying from When to Wash, and the panel type from the Washing Oracle. Shown as a summary with "change" links.
+- **Water hardness:** a three-way choice using the Miele hardness ranges: I soft, II medium (the default), III hard. The page names your likely water company from your location so you can look up your exact hardness by postcode. It doesn't invent hardness figures.
+
+### How it works
+
+[`day/day.js`](day/day.js) doesn't repeat the other oracles' knowledge; it calls them.
+
+1. **Sort.** Each piece gets a care class from its fabric and label:
+   - cotton
+   - synthetic
+   - delicate
+   - hand wash
+   - not for the machine: a "do not wash" label, or a stain the Stain Oracle sends to a professional
+
+   Each piece also gets a colour group: whites, colours or darks.
+   - Whites and darks never share a load.
+   - Loads under 1 kg join a compatible one; cotton and synthetics make a mixed load.
+   - A load over its programme's maximum (from the Miele manuals) is split.
+2. **Stains:** for each stained piece, the Stain Oracle's steps. The pre-treatment time is read from those steps (for example "soak 30 minutes", "leave 10 minutes").
+3. **Settings:** the Washing Oracle with the load's most restrictive fabric, colour and care-label temperature. Hand-wash labels go to Woollens or Silks. Mostly-hygiene loads (towels, underwear, tea towels, bed linen) lean to 60 °C where the colours allow it.
+4. **Timing:** When to Wash, one load at a time, never overlapping the others. Someone has to be home and up to pre-treat the stains before loading. Wool dries flat inside, and pieces labelled "no tumble dryer" stay out of the dryer. Loads stay on the same day when that costs little.
+5. **Extras:**
+   - **Microfibre shedding:** a risk level per load with synthetics, from synthetic share, temperature, programme action, spin and how full the drum is, plus ways to shed less.
+   - **Dose:** set by water hardness, soil and load size. TwinDos machines just need the hardness set once.
+   - **Machine care rings:** hot maintenance wash (monthly), door seal (weekly) and drain filter (every 3 months), each with a "Done today" button.
+
+Laundry Day is on the website only, like When to Wash: it needs live weather.
 
 ## Stain Oracle
+
+The Stain Oracle lives at `/stain/` (`stain/index.html`, `stain/stain-app.js`) and uses the shared `oracle.js`.
 
 ### What it covers
 
@@ -132,7 +182,7 @@ It then scores what's left on:
 
 Loads are spread over the week: the best slot on each day first.
 
-**Weather** comes from the [Open-Meteo](https://open-meteo.com/) forecast API, called directly from the browser. It's free for non-commercial use under CC BY 4.0, needs no key and is cached for an hour. The page uses:
+**Weather** comes from the [Open-Meteo](https://open-meteo.com/) forecast API, called directly from the browser. It's free for non-commercial use under CC BY 4.0 and needs no key. NewTexEco Care & Repair is a non-commercial project, so it uses Open-Meteo's free plan. Each forecast is cached in the browser for an hour, which keeps the page far below the free limit of 10,000 calls a day. The page uses:
 - **tilted solar irradiance** for your panels
 - **FAO-56 reference evaporation (ET0)** as drying speed. ET0 already combines sun, temperature, humidity and wind. A load counts as dry after about 1 mm.
 - **rain probability**, plus sunrise and sunset
@@ -147,7 +197,7 @@ When to Wash runs on the website only: Claude Artifacts can't fetch live weather
 
 ## Run it
 
-Open `index.html` in a browser, or serve the folder (`python3 -m http.server`) and open `/washing/`. There is no build step.
+Serve the folder (`python3 -m http.server`) and open `/` (Laundry Day), `/stain/`, `/washing/` or `/when/`. There is no build step.
 
 ## Test it
 
@@ -163,6 +213,19 @@ node --test
 - no bleach on darks
 - every temperature within the limits
 - no empty or unfilled text
+
+`test/day.test.mjs` checks Laundry Day:
+- whites and darks never share a load
+- wool and silk only go in hand-wash loads
+- no load exceeds its programme's maximum
+- care labels cap the temperature or keep a piece out of the machine
+- stain pre-treatment times are read correctly
+- microfibre advice only appears for synthetics
+- the water company lookup and the hardness dose
+- the machine-care counters
+- on a sunny week, every load gets a slot, nothing overlaps, and stain prep fits
+
+`test/fixtures.mjs` holds the shared synthetic Open-Meteo forecast.
 
 ## Add a stain or textile
 

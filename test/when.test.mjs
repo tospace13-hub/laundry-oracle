@@ -7,28 +7,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const W = require('../when/when.js');
 const MAP = require('../when/nl-map.js');
-
-// Build a 7-day forecast in Open-Meteo's response format. `day(d, h)` returns the hour's weather.
-export function forecast(start, day) {
-  const time = [];
-  const keys = ['temperature_2m', 'relative_humidity_2m', 'precipitation_probability', 'precipitation', 'cloud_cover',
-    'wind_speed_10m', 'global_tilted_irradiance', 'et0_fao_evapotranspiration', 'vapour_pressure_deficit', 'is_day'];
-  const hourly = Object.fromEntries(keys.map((k) => [k, []]));
-  const daily = { time: [], sunrise: [], sunset: [] };
-  const base = new Date(`${start}T12:00:00Z`);
-  for (let d = 0; d < 7; d++) {
-    const date = new Date(base.getTime() + d * 86400000).toISOString().slice(0, 10);
-    daily.time.push(date);
-    daily.sunrise.push(`${date}T07:30`);
-    daily.sunset.push(`${date}T19:00`);
-    for (let h = 0; h < 24; h++) {
-      time.push(`${date}T${String(h).padStart(2, '0')}:00`);
-      const w = day(d, h);
-      for (const k of keys) hourly[k].push(w[k] === undefined ? null : w[k]);
-    }
-  }
-  return { latitude: 51.98, longitude: 5.9, timezone: 'Europe/Amsterdam', hourly: { time, ...hourly }, daily };
-}
+import { forecast } from './fixtures.mjs';
 
 const bell = (h, peak, from = 8, to = 18) => (h <= from || h >= to ? 0 : peak * Math.sin((Math.PI * (h - from)) / (to - from)));
 const sunny = (d, h) => ({
@@ -184,4 +163,26 @@ test('nobody ever home: nothing fits and the plan says why', () => {
   const p = W.plan({ home: { weekday: Array(24).fill(false), weekend: Array(24).fill(false) } }, fc(sunny), 0);
   assert.equal(p.loads.length, 0);
   assert.ok(p.warnings.some((w) => /Nothing fits/.test(w.text)));
+});
+
+test('busy intervals and stain prep time are respected', () => {
+  const all = { weekday: Array(24).fill(true), weekend: Array(24).fill(true) };
+  const first = W.plan({ home: all, loads: { per: 'week', count: 1 } }, fc(sunny), 0).loads[0];
+  const busy = [{ start: first.start, end: first.end }];
+  const second = W.plan({ home: all, busy, loads: { per: 'week', count: 3 } }, fc(sunny), 0);
+  for (const l of second.loads) assert.ok(l.start >= first.end + 15 || l.end + 15 <= first.start, 'no overlap with busy');
+  const prepped = W.plan({ prepMin: 45, loads: { per: 'day', count: 1 } }, fc(sunny), 0);
+  for (const l of prepped.loads) {
+    assert.equal(l.loadAt - l.prepAt, 45);
+    for (let m = l.prepAt; m < l.loadAt; m += 15) {
+      const mod = ((m % 1440) + 1440) % 1440;
+      const ring = W.isWeekend(l.dow) ? prepped.input.home.weekend : prepped.input.home.weekday;
+      assert.ok(ring[Math.floor(mod / 60)] && mod >= W.AWAKE.from && mod <= W.AWAKE.to, `prep at ${W.hhmm(m)} while home and up`);
+    }
+  }
+});
+
+test('loads that must not dry outside stay inside, even on a sunny day', () => {
+  const p = W.plan({ dryOutside: false, loads: { per: 'day', count: 1 } }, fc(sunny), 0);
+  everyLoad(p, (l) => assert.ok(['inside', 'dryer'].includes(l.drying.method)));
 });

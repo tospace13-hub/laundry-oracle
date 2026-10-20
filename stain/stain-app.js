@@ -109,9 +109,10 @@
     <header class="masthead">
       <div>
         <nav class="oracle-nav" aria-label="Oracles">
+          <a href="../">Laundry Day</a>
           <a href="./" aria-current="page">Stain Oracle</a>
-          <a href="washing/">Washing Oracle</a>
-          <a href="when/">When to Wash</a>
+          <a href="../washing/">Washing Oracle</a>
+          <a href="../when/">When to Wash</a>
         </nav>
         <p class="brandline">Care &amp; Repair · Laundry Oracle</p>
         <h1>The Stain <span>Oracle</span></h1>
@@ -151,7 +152,7 @@
         <div class="reading-body" id="reading-body"></div>
         <div class="actions">
           <button class="btn" type="button" id="copy">Copy instructions</button>
-          <a class="btn btn--ghost" id="to-washing" href="washing/">Next: how to wash it</a>
+          <a class="btn btn--ghost" id="to-washing" href="../washing/">Next: how to wash it</a>
           <span class="copy-status" id="copy-status" role="status"></span>
           <textarea class="copy-fallback" id="copy-fallback" readonly hidden aria-label="Instructions to copy"></textarea>
         </div>

@@ -276,7 +276,8 @@
     <header class="masthead">
       <div>
         <nav class="oracle-nav" aria-label="Oracles">
-          <a href="../">Stain Oracle</a>
+          <a href="../">Laundry Day</a>
+          <a href="../stain/">Stain Oracle</a>
           <a href="../washing/">Washing Oracle</a>
           <a href="./" aria-current="page">When to Wash</a>
         </nav>

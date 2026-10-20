@@ -279,8 +279,10 @@
     const machine = M[input.machine];
     const soil = input.soil;
     const load = LOAD[input.load];
-    const fit = FIT[t.id];
-    const cap = Math.min(t.maxTemp, c.cap);
+    // A care label can lower the temperature (maxTemp) or ask for hand washing (Woollens/Silks only).
+    const fit = input.handWash ? { woollens: 1, silks: t.id === 'silk' ? 1 : 0.9 } : FIT[t.id];
+    const labelCap = Number.isFinite(input.maxTemp) ? input.maxTemp : 90;
+    const cap = Math.min(t.maxTemp, c.cap, labelCap);
     const kg = Math.round(machine.drumKg * load.fill * DENSITY[t.id] * 10) / 10;
     const w = Object.fromEntries(METRICS.map((m, i) => [m.id, weights[i]]));
     const out = [];

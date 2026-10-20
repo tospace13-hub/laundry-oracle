@@ -155,3 +155,17 @@ test('the Quick corner on a small, lightly soiled cotton load picks Express 20',
     assert.equal(r.programme.id, 'express20', `${m.id}: ${r.summary}`);
   }
 });
+
+test('a care-label temperature cap lowers the wash', () => {
+  const free = W.advise({ colour: 'white', point: corner('hygiene') });
+  assert.ok(free.temp >= 60, free.summary);
+  const capped = W.advise({ colour: 'white', point: corner('hygiene'), maxTemp: 30 });
+  assert.ok(capped.temp !== null && capped.temp <= 30, capped.summary);
+});
+
+test('a hand-wash label sends any fabric to Woollens or Silks', () => {
+  for (const m of W.MACHINES) {
+    const r = W.advise({ textile: 'cotton', handWash: true, machine: m.id });
+    assert.ok(['woollens', 'silks'].includes(r.programme.id), `${m.id}: ${r.summary}`);
+  }
+});

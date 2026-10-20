@@ -222,6 +222,12 @@
     const end = start + D;
     if (start < now || end > cx.horizon) return null;
 
+    // Laundry Day can ask for a slot on one particular day.
+    if (input.onlyDay != null && Math.floor(start / 1440) !== input.onlyDay) return null;
+
+    // Other loads already planned (Laundry Day plans one load at a time).
+    if ((input.busy || []).some((b) => start < b.end + GAP_MIN && b.start < end + GAP_MIN)) return null;
+
     // Quiet hours: the machine may not run (or spin) during them.
     if (input.quiet) {
       for (let m = start; m < end; m += 15) if (cx.quietAt(m)) return null;
@@ -229,8 +235,15 @@
 
     // Loading: someone is home and up at the start, or was within Delay start's reach before it.
     let loadAt = null;
-    for (let m = start; m >= Math.max(0, start - DELAY_MAX_MIN, now); m -= 15) {
-      if (cx.handsAt(m)) { loadAt = m; break; }
+    // With stains to pre-treat first, someone also has to be home and up for prepMin before loading.
+    const prep = input.prepMin || 0;
+    const prepFits = (m) => {
+      if (m - prep < now) return false;
+      for (let q = m - prep; q < m; q += 15) if (!cx.handsAt(q)) return false;
+      return true;
+    };
+    for (let m = start; m >= Math.max(0, start - DELAY_MAX_MIN, now + prep); m -= 15) {
+      if (cx.handsAt(m) && prepFits(m)) { loadAt = m; break; }
     }
     if (loadAt === null) return null;
     // If you load and then go out, the deadline is when you leave.
@@ -299,7 +312,7 @@
 
   function dryingFrom(input, fc, cx, hangAt) {
     const none = { method: input.drying.dryer !== 'none' ? 'dryer' : 'inside', fraction: 0, hangAt, dryBy: null, mm: 0 };
-    if (!fc.weather || !input.drying.line) return none;
+    if (!fc.weather || !input.drying.line || input.dryOutside === false) return none;
     const day = cx.dayOf(hangAt);
     const dayStart = Math.floor(hangAt / 1440) * 1440;
     const light = dayStart + day.sunset + 60;
@@ -373,6 +386,8 @@
       loadAt: c.loadAt,
       loadBy: c.loadBy,
       loadLabel: hhmm(c.loadBy),
+      prepAt: c.loadAt - (input.prepMin || 0),
+      prepLabel: hhmm(c.loadAt - (input.prepMin || 0)),
       delayMin: c.start - c.loadAt,
       startsInMin: c.start - c.loadBy,
       unloadLabel: hhmm(c.unloadAt),

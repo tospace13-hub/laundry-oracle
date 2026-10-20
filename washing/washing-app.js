@@ -392,7 +392,8 @@
     <header class="masthead">
       <div>
         <nav class="oracle-nav" aria-label="Oracles">
-          <a href="../">Stain Oracle</a>
+          <a href="../">Laundry Day</a>
+          <a href="../stain/">Stain Oracle</a>
           <a href="./" aria-current="page">Washing Oracle</a>
           <a href="../when/">When to Wash</a>
         </nav>
@@ -429,7 +430,7 @@
             ${loadMarkup()}
           </fieldset>
         </div>
-        <a class="stain-link" id="stain-link" href="../">
+        <a class="stain-link" id="stain-link" href="../stain/">
           <span class="round-btn-face" aria-hidden="true">${I.icon('stain')}</span>
           <span><strong>Stains?</strong> Treat them first in the Stain Oracle. Your fabric and colour come along.</span>
         </a>
