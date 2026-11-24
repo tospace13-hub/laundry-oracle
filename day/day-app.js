@@ -669,7 +669,9 @@
   if ('IntersectionObserver' in window) {
     new IntersectionObserver((entries) => entries.forEach((en) => dock.classList.toggle('is-away', en.isIntersecting)), { threshold: 0.1 }).observe($('reading'));
   }
-  setInterval(() => render(false), 5 * 60 * 1000);
+  // Keep the plan current, but not while the tab is in the background; catch up when it comes back.
+  setInterval(() => { if (!document.hidden) render(false); }, 5 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) render(false); });
   window.addEventListener('focus', () => render(false));
 
   render(false);

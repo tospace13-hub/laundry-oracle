@@ -734,7 +734,9 @@
   }
 
   // Refresh "now" every few minutes so the plan never offers a time that has passed.
-  setInterval(() => render(false), 5 * 60 * 1000);
+  // Keep the plan current, but not while the tab is in the background; catch up when it comes back.
+  setInterval(() => { if (!document.hidden) render(false); }, 5 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) render(false); });
   window.addEventListener('focus', () => { washing = washingChoice(); render(false); });
 
   render(false);

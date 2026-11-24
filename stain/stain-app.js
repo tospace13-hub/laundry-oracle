@@ -26,25 +26,31 @@
 
   // ---- Drawings ----
 
+  // Three stacked layers: glass and water, the turning drum (its own layer, so browsers rotate it
+  // on the graphics chip without redrawing), then the door ring and shine.
   function porthole(uid) {
-    return `<svg class="porthole" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
-      <defs><clipPath id="glass-${uid}"><circle cx="60" cy="60" r="40"/></clipPath></defs>
-      <circle class="ph-rim" cx="60" cy="60" r="57"/>
-      <circle class="ph-glass" cx="60" cy="60" r="40"/>
-      <g clip-path="url(#glass-${uid})">
-        <path class="ph-water" d="M14 72 C 30 64, 44 80, 60 72 S 90 64, 106 72 V 106 H 14 Z"/>
-        <g class="ph-drum">
+    return `<div class="porthole" aria-hidden="true">
+      <svg class="ph-layer" viewBox="0 0 120 120" focusable="false">
+        <defs><clipPath id="glass-${uid}"><circle cx="60" cy="60" r="40"/></clipPath></defs>
+        <circle class="ph-rim" cx="60" cy="60" r="57"/>
+        <circle class="ph-glass" cx="60" cy="60" r="40"/>
+        <path class="ph-water" clip-path="url(#glass-${uid})" d="M14 72 C 30 64, 44 80, 60 72 S 90 64, 106 72 V 106 H 14 Z"/>
+      </svg>
+      <div class="ph-drum">
+        <svg viewBox="20 20 80 80" focusable="false">
           <rect class="ph-a" x="33" y="31" width="26" height="12" rx="6" transform="rotate(-24 46 37)"/>
           <path class="ph-b" d="M68 34 h10 v20 a6 6 0 0 1 -6 6 h-12 a5 5 0 0 1 0 -10 h8 z"/>
           <circle class="ph-c" cx="50" cy="78" r="9"/>
           <circle class="ph-bubble" cx="78" cy="76" r="4"/>
           <circle class="ph-bubble" cx="40" cy="58" r="2.5"/>
-          <circle class="ph-bubble" cx="64" cy="50" r="2"/>
-        </g>
-      </g>
-      <circle class="ph-door" cx="60" cy="60" r="44"/>
-      <path class="ph-shine" d="M37 46 A26 26 0 0 1 55 33"/>
-    </svg>`;
+            <circle class="ph-bubble" cx="64" cy="50" r="2"/>
+        </svg>
+      </div>
+      <svg class="ph-layer" viewBox="0 0 120 120" focusable="false">
+        <circle class="ph-door" cx="60" cy="60" r="44"/>
+        <path class="ph-shine" d="M37 46 A26 26 0 0 1 55 33"/>
+      </svg>
+    </div>`;
   }
 
   // ISO 3758 care symbols, drawn in currentColor.

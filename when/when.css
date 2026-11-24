@@ -36,7 +36,8 @@
   color: var(--accent);
 }
 .mast-sun .icon { width: 62%; height: 62%; }
-.masthead .mast-sun .icon { animation: drum-idle 40s linear infinite; }
+/* Turn the whole round badge: it is a plain circle, so it looks the same, and browsers rotate it as one image. */
+.masthead .mast-sun { animation: drum-idle 40s linear infinite; will-change: transform; }
 
 /* === Map === */
 .map-wrap { clear: both; display: grid; justify-items: center; }

@@ -156,7 +156,8 @@ button, input, textarea { font: inherit; }
 .masthead .porthole { width: clamp(84px, 15vw, 168px); }
 
 /* === Porthole === */
-.porthole { display: block; height: auto; max-width: 100%; overflow: visible; }
+.porthole { position: relative; display: block; aspect-ratio: 1; height: auto; max-width: 100%; }
+.ph-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .ph-rim { fill: var(--surface); stroke: var(--line); stroke-width: 2; }
 .ph-glass { fill: var(--surface-sunk); }
 .ph-water { fill: var(--heading); opacity: 0.16; }
@@ -166,8 +167,10 @@ button, input, textarea { font: inherit; }
 .ph-bubble { fill: none; stroke: var(--heading); stroke-width: 1.5; opacity: 0.45; }
 .ph-door { fill: none; stroke: var(--heading); stroke-width: 6; }
 .ph-shine { fill: none; stroke: var(--surface); stroke-width: 4; stroke-linecap: round; opacity: 0.85; }
-.ph-drum { transform-box: view-box; transform-origin: 60px 60px; }
-.masthead .ph-drum { animation: drum-idle 28s linear infinite; }
+/* The drum sits exactly over the glass (r 40 of 120) and turns as one image: no redraw per frame. */
+.ph-drum { position: absolute; left: 16.667%; top: 16.667%; width: 66.667%; height: 66.667%; border-radius: 50%; overflow: hidden; }
+.ph-drum svg { display: block; width: 100%; height: 100%; }
+.masthead .ph-drum { animation: drum-idle 28s linear infinite; will-change: transform; }
 .spin .ph-drum { animation: drum-spin 0.9s cubic-bezier(0.25, 0.8, 0.3, 1); }
 @keyframes drum-idle { to { transform: rotate(360deg); } }
 @keyframes drum-spin { from { transform: rotate(-320deg); } to { transform: rotate(0deg); } }
